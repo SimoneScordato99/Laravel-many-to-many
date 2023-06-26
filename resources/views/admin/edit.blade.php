@@ -37,6 +37,34 @@
                 <div class="alert alert-danger">{{$message}}</div>
             @enderror
         </div>
+        
+        <div class="form-group mt-3">
+            @foreach($progeLenguage as $elem)
+              <div class="form-check">
+
+            @if ( $errors->any() )
+                <input class="form-check-input" 
+                type="checkbox" 
+                value="{{$elem->id}}" 
+                id="checkbox{{$elem->id}}" 
+                name="lenguage[]"
+                {{ in_array( $elem->id, old( 'lenguage', [] ) ) ? 'checked' : '' }}>
+
+            @else
+                <input class="form-check-input" 
+                type="checkbox" 
+                value="{{$elem->id}}" 
+                id="checkbox{{$elem->id}}" 
+                name="lenguage[]"
+	            {{ ( $proge->lenguages->contains($elem) ) ? 'checked' : '' }}>
+            @endif
+                <label class="form-check-label" for="checkbox{{$elem->id}}">
+                     {{$elem->name}}
+                </label>
+              </div>
+            @endforeach
+        </div>
+
     
         <button type="submit" class="btn btn-primary">Crea post</button>
     </form>

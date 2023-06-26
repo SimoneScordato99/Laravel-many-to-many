@@ -20,4 +20,7 @@ class Project extends Model
     public function genere(){
         return $this->belongsTo(Genere::class);
     }
+    public function lenguages(){
+        return $this->belongsToMany(Lenguage::class);
+    }
 }

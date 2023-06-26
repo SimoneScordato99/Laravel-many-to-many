@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Project;
 use App\Models\Genere;
+use App\Models\Lenguage;
 
 class ProjectController extends Controller
 {
@@ -28,8 +29,9 @@ class ProjectController extends Controller
      */
     public function create()
     {
+        $lenguage = Lenguage::All();
         $genere = Genere::All();
-        return view('admin.create', compact('genere'));
+        return view('admin.create', compact('genere', 'lenguage'));
     }
 
     /**
@@ -46,6 +48,7 @@ class ProjectController extends Controller
                 'title' => 'required|max:255',
                 'description' => 'required|min:5',
                 'thumb'=>'nullable',
+                'lenguages'=>'exists:lenguages,id'
             ],
             [
                 'title.required' => 'è richiesto di compilare il campo title',
@@ -65,9 +68,15 @@ class ProjectController extends Controller
         
 
         
-        $newPost = new Project();
-        $newPost->fill($form_data);
+        //$newPost = new Project();
+        //$newPost->fill($form_data);
 
+        $newPost = Project::create($form_data);
+
+        
+        if($request->has('lenguage')){
+            $newPost->lenguages()->attach($request->lenguage);
+        }
         $newPost->save();
 
         return redirect()->route('admin.index');
@@ -94,9 +103,11 @@ class ProjectController extends Controller
      */
     public function edit($id)
     {
-        $progeGenere = Genere::All();
+
         $proge = Project::find($id);
-        return view('admin.edit', compact('proge', 'progeGenere'));
+        $progeLenguage = Lenguage::All();
+        $progeGenere = Genere::All();
+        return view('admin.edit', compact('proge', 'progeLenguage', 'progeGenere'));
     }
 
     /**
@@ -110,10 +121,11 @@ class ProjectController extends Controller
     {
         $request->validate(
             [
+                'genere_id' => 'required',
                 'title' => 'required|max:255',
-                'description' => 'required|min:10',
+                'description' => 'required|min:5',
                 'thumb'=>'nullable',
-     
+                'lenguages'=>'exists:lenguages,id'
             ],
             [
                 'title.required' => 'è richiesto di compilare il campo title',
@@ -135,6 +147,9 @@ class ProjectController extends Controller
             $form_data['img'] = $img_path;
         }
         $proge->update($form_data);
+        if($request->has('lenguage')){
+            $proge->lenguages()->sync($request->lenguage);
+        }
 
         return redirect()->route('admin.index');
     }
@@ -148,6 +163,7 @@ class ProjectController extends Controller
     public function destroy($id)
     {
         $proge = Project::find($id);
+        $proge->lenguages()->sync([]);
         $proge->delete();
         return redirect()->route('admin.index');
     }
