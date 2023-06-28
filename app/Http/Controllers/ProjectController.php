@@ -162,8 +162,8 @@ class ProjectController extends Controller
      */
     public function destroy($id)
     {
-        $proge = Project::find($id);
         $proge->lenguages()->sync([]);
+        $proge = Project::find($id);
         $proge->delete();
         return redirect()->route('admin.index');
     }
